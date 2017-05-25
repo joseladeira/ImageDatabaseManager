@@ -41,17 +41,14 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QString dbFilename; // Name of the database;
-    QSqlDatabase db;
+    QSqlDatabase db;  // SQLdata-model-view variable
     QSqlTableModel *model; // model to the table
     const char tablename[20] = "imgTable";
-    int current_row;    
-    enum class C {file, width, height, size, date, imagedata} c; // column header enum
+    int current_row;  // current row selected on the tableview table.
+    enum C {_file, _width, _height, _size, _date, _imagedata}; // column header enum
     QMap <C, int >  * col; // column header map
 
-    void connection (); // DB connection
-
-
-
+    void connection (); // initialize DB connection
 };
 
 #endif // MAINWINDOW_H

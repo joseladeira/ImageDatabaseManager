@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-
+/*
+ * The main window.
+*/
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -10,12 +12,12 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setWindowTitle("Image Database manager");
 
     std::initializer_list <std::pair<C, int > > headerNameList {
-        std::make_pair(C::file,0),
-                std::make_pair(C::width,1),
-                std::make_pair(C::height,2),
-                std::make_pair(C::size,3),
-                std::make_pair(C::date,4),
-                std::make_pair(C::imagedata,5)
+        std::make_pair(_file,0),
+                std::make_pair(_width,1),
+                std::make_pair(_height,2),
+                std::make_pair(_size,3),
+                std::make_pair(_date,4),
+                std::make_pair(_imagedata,5)
     };
     col = new QMap<C, int >(headerNameList);
 
@@ -25,14 +27,14 @@ MainWindow::MainWindow(QWidget *parent) :
     model->setTable(tablename);
     model->setEditStrategy(QSqlTableModel::OnManualSubmit);
 
-    model->setHeaderData(col->value(C::file), Qt::Horizontal, tr("File"));
-    model->setHeaderData(col->value(C::width), Qt::Horizontal, tr("Width"));
-    model->setHeaderData(col->value(C::height), Qt::Horizontal, tr("Height"));
-    model->setHeaderData(col->value(C::size), Qt::Horizontal, tr("Size"));
-    model->setHeaderData(col->value(C::date), Qt::Horizontal, tr("Date"));
+    model->setHeaderData(col->value(_file), Qt::Horizontal, tr("File"));
+    model->setHeaderData(col->value(_width), Qt::Horizontal, tr("Width"));
+    model->setHeaderData(col->value(_height), Qt::Horizontal, tr("Height"));
+    model->setHeaderData(col->value(_size), Qt::Horizontal, tr("Size"));
+    model->setHeaderData(col->value(_date), Qt::Horizontal, tr("Date"));
 
     ui->tableView->setModel(model);
-    ui->tableView->hideColumn(col->value(C::imagedata));
+    ui->tableView->hideColumn(col->value(_imagedata));
     ui->tableView->setSortingEnabled(true);
     ui->tableView->resizeColumnsToContents();
 
@@ -46,7 +48,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
 }
 
-// DB connection
+/*
+ * Initialize the DB connection
+*/
 void MainWindow::connection() {
 
     // default db initializing
@@ -105,12 +109,12 @@ void MainWindow::on_pushButton_clicked()
 
         int row = model->rowCount(QModelIndex());
         model->insertRow(row, QModelIndex());
-        model->setData(model->index(row,col->value(C::file),QModelIndex()),fi.fileName(), Qt::EditRole);
-        model->setData(model->index(row,col->value(C::width),QModelIndex()),width, Qt::EditRole);
-        model->setData(model->index(row,col->value(C::height),QModelIndex()),height, Qt::EditRole);
-        model->setData(model->index(row,col->value(C::size),QModelIndex()),fi.size(), Qt::EditRole);
-        model->setData(model->index(row,col->value(C::date),QModelIndex()),fi.created(), Qt::EditRole);
-        model->setData(model->index(row,col->value(C::imagedata),QModelIndex()),inByteArray, Qt::EditRole);
+        model->setData(model->index(row,col->value(_file),QModelIndex()),fi.fileName(), Qt::EditRole);
+        model->setData(model->index(row,col->value(_width),QModelIndex()),width, Qt::EditRole);
+        model->setData(model->index(row,col->value(_height),QModelIndex()),height, Qt::EditRole);
+        model->setData(model->index(row,col->value(_size),QModelIndex()),fi.size(), Qt::EditRole);
+        model->setData(model->index(row,col->value(_date),QModelIndex()),fi.created(), Qt::EditRole);
+        model->setData(model->index(row,col->value(_imagedata),QModelIndex()),inByteArray, Qt::EditRole);
 
     }
     ui->tableView->resizeColumnsToContents();
@@ -129,7 +133,9 @@ void MainWindow::on_pushButton_2_clicked()
 
 
 
-// commit changes to DB
+/*
+ * Commit changes to DB
+ */
 void MainWindow::on_pushButton_5_clicked()
 {
     model->database().transaction();
@@ -146,7 +152,9 @@ void MainWindow::on_pushButton_5_clicked()
     model->select();
 }
 
-// Undo all changes made to DB
+/*
+ * Undo all changes made to DB
+ */
 void MainWindow::on_pushButton_6_clicked()
 {
     model->revertAll();
@@ -154,12 +162,14 @@ void MainWindow::on_pushButton_6_clicked()
     model->select();
 }
 
-// preview image box
+/*
+ * preview image box
+*/
 void MainWindow::setLabelPicture (const QModelIndex  qmi) {
 
     QSqlRecord rec = model->record( (const int) qmi.row());
     QPixmap inPixmap = QPixmap();
-    inPixmap.loadFromData( rec.value(col->value(C::imagedata)).toByteArray() );
+    inPixmap.loadFromData( rec.value(col->value(_imagedata)).toByteArray() );
     ui->label->setPixmap(inPixmap);
 
 }
@@ -171,10 +181,9 @@ void MainWindow::save_as()
 {
 
     QSqlRecord rec = model->record( current_row );
-    QString filename = rec.value(col->value(C::file)).toString(); // hint filename
+    QString filename = rec.value(col->value(_file)).toString(); // hint filename
     QPixmap pixmap = QPixmap();
-    pixmap.loadFromData( rec.value(col->value(C::imagedata)).toByteArray() );
-
+    pixmap.loadFromData( rec.value(col->value(_imagedata)).toByteArray() );
 
     QFileDialog dialog(this);
     dialog.setWindowModality(Qt::WindowModal);
