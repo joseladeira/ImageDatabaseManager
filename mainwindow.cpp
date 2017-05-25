@@ -86,20 +86,22 @@ MainWindow::~MainWindow()
  */
 void MainWindow::on_pushButton_clicked()
 {
-    QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::ExistingFiles);
-    dialog.setNameFilter(tr("Images (*.bmp  *.gif *.jpg *.jpeg *.png *.pbm *.pgm *.ppm *.xbm *.xpm)"));
-    dialog.setViewMode(QFileDialog::Detail);
-    dialog.setAcceptMode(QFileDialog::AcceptOpen);
+
+    QFileDialog * dialog = new QFileDialog(this);
+    dialog->setFileMode(QFileDialog::ExistingFiles);
+    dialog->setNameFilter(tr("Images (*.bmp *.gif *.jpg *.jpeg *.png *.pbm *.pgm *.ppm *.xbm *.xpm)"));
+    dialog->setViewMode(QFileDialog::Detail);
+    dialog->setAcceptMode(QFileDialog::AcceptOpen);
     QStringList fileNames;
-    if (dialog.exec()) fileNames = dialog.selectedFiles();
+    if (dialog->exec()) {fileNames = dialog->selectedFiles();} else return;
 
     for (QString filename : fileNames) {
         QFile file(filename);
         if (!file.open(QIODevice::ReadOnly)) return;
         QByteArray inByteArray = file.readAll();
         QPixmap outPixmap = QPixmap();
-        outPixmap.loadFromData( inByteArray );
+        if (!outPixmap.loadFromData( inByteArray )) return;
+
         QFileInfo fi(filename);
         QString width = QString::number(outPixmap.width());
         QString height = QString::number(outPixmap.height());
@@ -118,6 +120,7 @@ void MainWindow::on_pushButton_clicked()
 
     }
     ui->tableView->resizeColumnsToContents();
+
 }
 
 /*
@@ -126,12 +129,11 @@ void MainWindow::on_pushButton_clicked()
 void MainWindow::on_pushButton_2_clicked()
 {    
     QModelIndexList selectedLines = ui->tableView->selectionModel()->selectedIndexes();
+    if (selectedLines.isEmpty()) return;
     for (QModelIndex line : selectedLines) {
         model->removeRow(line.row());
     }
 }
-
-
 
 /*
  * Commit changes to DB
@@ -169,9 +171,11 @@ void MainWindow::setLabelPicture (const QModelIndex  qmi) {
 
     QSqlRecord rec = model->record( (const int) qmi.row());
     QPixmap inPixmap = QPixmap();
-    inPixmap.loadFromData( rec.value(col->value(_imagedata)).toByteArray() );
-    ui->label->setPixmap(inPixmap);
-
+    if (!inPixmap.loadFromData( rec.value(col->value(_imagedata)).toByteArray() ))return;
+    int greater = inPixmap.width() >inPixmap.height()?inPixmap.width():inPixmap.height();
+    if (greater==0) greater=1;
+    float f = (float)200/greater;
+    ui->label->setPixmap(inPixmap.scaled(inPixmap.width()*f,inPixmap.height()*f,Qt::KeepAspectRatio));
 }
 
 /*
@@ -181,17 +185,27 @@ void MainWindow::save_as()
 {
 
     QSqlRecord rec = model->record( current_row );
+    if (rec.isEmpty()) return;
     QString filename = rec.value(col->value(_file)).toString(); // hint filename
+    if (filename.isEmpty()) return;
     QPixmap pixmap = QPixmap();
-    pixmap.loadFromData( rec.value(col->value(_imagedata)).toByteArray() );
+    if(!pixmap.loadFromData( rec.value(col->value(_imagedata)).toByteArray())) return;
 
-    QFileDialog dialog(this);
-    dialog.setWindowModality(Qt::WindowModal);
-    dialog.setAcceptMode(QFileDialog::AcceptSave);
-    filename = dialog.getSaveFileName(this, tr("Save File"),
-                                      filename, tr("Images (*.bmp  *.gif *.jpg *.jpeg *.png *.pbm *.pgm *.ppm *.xbm *.xpm)"));
-
+    QFileDialog * dialog = new QFileDialog(this);
+    dialog->setWindowModality(Qt::WindowModal);
+    dialog->setAcceptMode(QFileDialog::AcceptSave);
+    //dialog->setAttribute(Qt::WA);
+    filename = dialog->getSaveFileName(this, tr("Save File"),
+             filename, tr("Images (*.bmp *.gif *.jpg *.jpeg *.png *.pbm *.pgm *.ppm *.xbm *.xpm)"));
+    if (filename.isEmpty()) return;
 
     QStringList filename_split = filename.split(".");
-    pixmap.save(filename,qPrintable(filename_split.last().toUpper()),100);
+    if (!pixmap.save(filename,qPrintable(filename_split.last().toUpper()),100)) return;
+}
+/*
+ * View image
+*/
+void MainWindow::on_pushButton_7_clicked()
+{
+
 }
