@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "viewdialog.h"
 /*
  * The main window.
 */
@@ -207,5 +208,13 @@ void MainWindow::save_as()
 */
 void MainWindow::on_pushButton_7_clicked()
 {
+    QSqlRecord rec = model->record( current_row );
+    if (rec.isEmpty()) return;
+    QString filename = rec.value(col->value(_file)).toString();
+    if (filename.isEmpty()) return;
+    QPixmap pixmap = QPixmap();
+    if(!pixmap.loadFromData( rec.value(col->value(_imagedata)).toByteArray())) return;
 
+    ViewDialog vdiag(pixmap,this);
+    vdiag.exec();
 }

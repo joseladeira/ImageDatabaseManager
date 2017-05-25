@@ -24,11 +24,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    viewdialog.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    viewdialog.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    viewdialog.ui
 
 DISTFILES += \
     README.md
