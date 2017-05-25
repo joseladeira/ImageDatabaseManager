@@ -9,15 +9,15 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     this->setWindowTitle("Image Database manager");
 
-    std::initializer_list <std::pair<QString, int > > headerNameList {
-        std::make_pair("File",0),
-                std::make_pair("Width",1),
-                std::make_pair("Height",2),
-                std::make_pair("Size",3),
-                std::make_pair("Date",4),
-                std::make_pair("Imagedata",5)
+    std::initializer_list <std::pair<C, int > > headerNameList {
+        std::make_pair(C::file,0),
+                std::make_pair(C::width,1),
+                std::make_pair(C::height,2),
+                std::make_pair(C::size,3),
+                std::make_pair(C::date,4),
+                std::make_pair(C::imagedata,5)
     };
-    col = new QMap<QString, int >(headerNameList);
+    col = new QMap<C, int >(headerNameList);
 
     connection();
 
@@ -25,14 +25,14 @@ MainWindow::MainWindow(QWidget *parent) :
     model->setTable(tablename);
     model->setEditStrategy(QSqlTableModel::OnManualSubmit);
 
-    model->setHeaderData(col->value("File"), Qt::Horizontal, tr("File"));
-    model->setHeaderData(col->value("Width"), Qt::Horizontal, tr("Width"));
-    model->setHeaderData(col->value("Height"), Qt::Horizontal, tr("Height"));
-    model->setHeaderData(col->value("Size"), Qt::Horizontal, tr("Size"));
-    model->setHeaderData(col->value("Date"), Qt::Horizontal, tr("Date"));
+    model->setHeaderData(col->value(C::file), Qt::Horizontal, tr("File"));
+    model->setHeaderData(col->value(C::width), Qt::Horizontal, tr("Width"));
+    model->setHeaderData(col->value(C::height), Qt::Horizontal, tr("Height"));
+    model->setHeaderData(col->value(C::size), Qt::Horizontal, tr("Size"));
+    model->setHeaderData(col->value(C::date), Qt::Horizontal, tr("Date"));
 
     ui->tableView->setModel(model);
-    ui->tableView->hideColumn(col->value("Imagedata"));
+    ui->tableView->hideColumn(col->value(C::imagedata));
     ui->tableView->setSortingEnabled(true);
     ui->tableView->resizeColumnsToContents();
 
@@ -43,8 +43,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->tableView, SIGNAL(clicked(QModelIndex)), this, SLOT(set_current_row(QModelIndex)));
     connect(ui->tableView, SIGNAL(activated(QModelIndex)), this, SLOT(set_current_row(QModelIndex)));
     connect(ui->pushButton_4, SIGNAL(clicked(bool)),this, SLOT(save_as()));
-
-
 
 }
 
@@ -107,12 +105,12 @@ void MainWindow::on_pushButton_clicked()
 
         int row = model->rowCount(QModelIndex());
         model->insertRow(row, QModelIndex());
-        model->setData(model->index(row,col->value("File"),QModelIndex()),fi.fileName(), Qt::EditRole);
-        model->setData(model->index(row,col->value("Width"),QModelIndex()),width, Qt::EditRole);
-        model->setData(model->index(row,col->value("Height"),QModelIndex()),height, Qt::EditRole);
-        model->setData(model->index(row,col->value("Size"),QModelIndex()),fi.size(), Qt::EditRole);
-        model->setData(model->index(row,col->value("Date"),QModelIndex()),fi.created(), Qt::EditRole);
-        model->setData(model->index(row,col->value("Imagedata"),QModelIndex()),inByteArray, Qt::EditRole);
+        model->setData(model->index(row,col->value(C::file),QModelIndex()),fi.fileName(), Qt::EditRole);
+        model->setData(model->index(row,col->value(C::width),QModelIndex()),width, Qt::EditRole);
+        model->setData(model->index(row,col->value(C::height),QModelIndex()),height, Qt::EditRole);
+        model->setData(model->index(row,col->value(C::size),QModelIndex()),fi.size(), Qt::EditRole);
+        model->setData(model->index(row,col->value(C::date),QModelIndex()),fi.created(), Qt::EditRole);
+        model->setData(model->index(row,col->value(C::imagedata),QModelIndex()),inByteArray, Qt::EditRole);
 
     }
     ui->tableView->resizeColumnsToContents();
@@ -161,7 +159,7 @@ void MainWindow::setLabelPicture (const QModelIndex  qmi) {
 
     QSqlRecord rec = model->record( (const int) qmi.row());
     QPixmap inPixmap = QPixmap();
-    inPixmap.loadFromData( rec.value(col->value("Imagedata")).toByteArray() );
+    inPixmap.loadFromData( rec.value(col->value(C::imagedata)).toByteArray() );
     ui->label->setPixmap(inPixmap);
 
 }
@@ -173,9 +171,9 @@ void MainWindow::save_as()
 {
 
     QSqlRecord rec = model->record( current_row );
-    QString filename = rec.value(col->value("File")).toString(); // hint filename
+    QString filename = rec.value(col->value(C::file)).toString(); // hint filename
     QPixmap pixmap = QPixmap();
-    pixmap.loadFromData( rec.value(col->value("Imagedata")).toByteArray() );
+    pixmap.loadFromData( rec.value(col->value(C::imagedata)).toByteArray() );
 
 
     QFileDialog dialog(this);

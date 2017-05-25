@@ -45,9 +45,11 @@ private:
     QSqlTableModel *model; // model to the table
     const char tablename[20] = "imgTable";
     int current_row;    
-    QMap <QString, int >  * col; // column header map
+    enum class C {file, width, height, size, date, imagedata} c; // column header enum
+    QMap <C, int >  * col; // column header map
 
     void connection (); // DB connection
+
 
 
 };
