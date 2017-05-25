@@ -162,8 +162,9 @@ void MainWindow::save_as()
 {
 
     QSqlRecord rec = model->record( current_row );
-    QString filename = rec.value(0).toString(); // hint filename
-    QByteArray bArray = rec.value(4).toByteArray();
+    QString filename = rec.value(0).toString(); // hint filename    
+    QPixmap pixmap = QPixmap();
+    pixmap.loadFromData( rec.value(4).toByteArray() );
 
 
     QFileDialog dialog(this);
@@ -172,9 +173,6 @@ void MainWindow::save_as()
     filename = dialog.getSaveFileName(this, tr("Save File"),
                                               filename, tr("Images (*.png *.xpm *.jpg *.ps *.bmp)"));
 
-
-    QFile file(filename);
-    if (!file.open(QIODevice::WriteOnly)) return;
-    QDataStream out(&file);
-    out << bArray;
+    const char * suffix = qPrintable (dialog.defaultSuffix());
+    pixmap.save(filename,suffix,100);
 }
