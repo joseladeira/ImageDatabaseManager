@@ -9,6 +9,7 @@
 #include <QTableView>
 #include <QMessageBox>
 #include <QSqlTableModel>
+#include <QMap>
 
 namespace Ui {
 class MainWindow;
@@ -39,14 +40,15 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    QString dbFilename;
+    QString dbFilename; // Name of the database;
     QSqlDatabase db;
-    QSqlTableModel *model;
+    QSqlTableModel *model; // model to the table
     const char tablename[20] = "imgTable";
-    int current_row;
-
+    int current_row;    
+    QMap <QString, int >  * col; // column header map
 
     void connection (); // DB connection
+
 
 };
 
