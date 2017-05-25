@@ -10,6 +10,7 @@
 #include <QMessageBox>
 #include <QSqlTableModel>
 #include <QMap>
+#include <QException>
 
 namespace Ui {
 class MainWindow;
@@ -38,6 +39,8 @@ private slots:
 
     void set_current_row (QModelIndex qmi) {current_row = (const int) qmi.row();}
 
+    void on_pushButton_7_clicked();
+
 private:
     Ui::MainWindow *ui;
     QString dbFilename; // Name of the database;
@@ -46,7 +49,7 @@ private:
     const char tablename[20] = "imgTable";
     int current_row;  // current row selected on the tableview table.
     enum C {_file, _width, _height, _size, _date, _imagedata}; // column header enum
-    QMap <C, int >  * col; // column header map
+    QMap <C, int >  * col; // column header map    
 
     void connection (); // initialize DB connection
 };
